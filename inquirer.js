@@ -19,4 +19,4 @@ startPrompt = () => {
     ])
 }
 
-startPrompt();
+module.exports = {startPrompt}
