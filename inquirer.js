@@ -1,9 +1,9 @@
 const inquirer = require('inquirer');
 
-startPrompt = () => {
+startPrompt = (connection) => {
     inquirer.prompt([
         {
-            type: 'list',
+            type: 'rawlist',
             name: 'whatWouldYouLikeToDo',
             message: 'What would you like to do??',
             choices: [
@@ -16,7 +16,17 @@ startPrompt = () => {
                 'Update Employee Role'
             ]
         }
-    ])
+    ]).then(function (answers) {
+        switch (answers.whatWouldYouLikeToDo) {
+            case "View All Employees":
+                connection.query('SELECT * from employee', function (err, data) {
+                    if (err) throw err;
+                    console.table(data);
+                });
+                break;
+        }
+
+    })
 }
 
-module.exports = {startPrompt}
+module.exports = { startPrompt }

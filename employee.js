@@ -17,5 +17,10 @@ connection.connect(function(err) {
   console.log("connected as id " + connection.threadId + "\n");
 });
 
+// connection.query('SELECT * from employee', function(err, data){
+// if (err) throw err;
+// console.table(data);
+// })
+
 // prompts questions for user in terminal
-startPrompt();
+startPrompt(connection);
