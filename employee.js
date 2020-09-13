@@ -79,30 +79,81 @@ function viewRole() {
 }
 
 function addEmployee() {
+  // array for new employee info
+  let employeeInfo = [];
 
-  connection.query('SELECT * from employee', async function (err, data) {
+  // asks user for first and last name of new employee
+  connection.query('SELECT * FROM employee', async function (err, data) {
     try {
-      let employeeInfo = [];
-      const newName = await
-        inquirer.prompt([{
-          type: "input",
-          name: "firstName",
-          message: "What is the first name of the employee?"
-        },
-        {
-          type: "input",
-          name: "lastName",
-          message: "What is the last name of the employee?"
-        }]).then(function (answers) {
-          employeeInfo.push(answers.firstName, answers.lastName);
-          console.log(employeeInfo);
-        });
+      const newName = await inquirer.prompt([{
+        type: "input",
+        name: "firstName",
+        message: "What is the first name of the employee?"
+      },
+      {
+        type: "input",
+        name: "lastName",
+        message: "What is the last name of the employee?"
+      }]).then(function (answers) {
+        employeeInfo.push(answers.firstName, answers.lastName);
+        console.log(employeeInfo);
+      });
     } catch (err) {
       console.log(err);
     }
 
+    // asks user for new employee's role
+    connection.query('SELECT * FROM role', async function (err, rdata) {
+      try {
+        const newR = await inquirer.prompt([{
+          type: "list",
+          name: "newRole",
+          message: "What is the role for the new employee?",
+          choices: rdata.map(function (r) {
+            return {
+              name: r.title,
+              value: r.id
+            }
+          })
+        }]).then(function (answers) {
+          employeeInfo.push(answers.newRole);
+          console.log(employeeInfo);
+        });
+      } catch (err) {
+        console.log(err);
+      }
+
+      // asks user for manager
+      connection.query("SELECT * FROM employee WHERE manager_id IS NULL", async function (err, mresults) {
+        try {
+          const newM = await inquirer.prompt([{
+            type: "list",
+            name: "newm",
+            message: "Who is the manager of the new employee?",
+            choices: mresults.map(function (m) {
+              return {
+                name: `${m.first_name} ${m.last_name}`,
+                value: m.manager_id
+              }
+            })
+          }]).then(function (answers) {
+            employeeInfo.push(answers.newm);
+            console.log(employeeInfo);
+            connection.query('INSERT INTO employee (??) VALUES (?, ?, ?, ?)', [["first_name", "last_name", "role_id", "manager_id"], employeeInfo[0], employeeInfo[1], employeeInfo[2], employeeInfo[3]], function (err, res) {
+              if (err) throw err;
+              console.log("Congrats. New employee has been added successfully.");
+            });
+          });
+        } catch (err) {
+          console.log(err);
+        }
+        //restarts prompt
+        startPrompt(connection);
+      });
+    });
   });
 }
+
 
 function addDepartment() {
   inquirer.prompt({
@@ -110,13 +161,13 @@ function addDepartment() {
     name: "newDepartment",
     message: "What department would you like to add?"
   })
-  .then(function (answers) {
-    connection.query("INSERT INTO department (name) VALUES (?)", answers.newDepartment, function(err, res) {
-      if (err) throw err;
-      console.log("Congrats. A new department has been successfully added.");
-      startPrompt(connection);
+    .then(function (answers) {
+      connection.query("INSERT INTO department (name) VALUES (?)", answers.newDepartment, function (err, res) {
+        if (err) throw err;
+        console.log("Congrats. A new department has been successfully added.");
+        startPrompt(connection);
+      });
     });
-  });
 }
 
 function addRole() {
