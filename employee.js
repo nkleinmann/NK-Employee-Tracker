@@ -15,7 +15,7 @@ function startPrompt(connection) {
               choices: [
                   'View All Employees',
                   'View All Employees by Department',
-                  'View All Employees By Role',
+                  'View All Employees by Role',
                   'Add Employee',
                   'Add Department',
                   'Add Role',
