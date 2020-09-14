@@ -2,10 +2,15 @@
 const consoleTable = require("console.table");
 const inquirer = require('inquirer');
 
+// other files
 const connection = require("./connection.js");
 
+// array for new employee info
+let employeeInfo = [];
+let updateEmpInfo = [];
+
 // function that starts switch cases with option for user
-function startPrompt(connection) {
+startPrompt = (connection) => {
   inquirer.prompt([
     {
       type: 'rawlist',
@@ -54,7 +59,7 @@ function startPrompt(connection) {
   });
 }
 
-function viewEmployees() {
+viewEmployees = () => {
   connection.query('SELECT employee.id, employee.first_name, employee.last_name, department.name AS department FROM employee LEFT JOIN department on employee.role_id = department.id;', function (err, data) {
     if (err) throw err;
     console.table(data);
@@ -62,7 +67,7 @@ function viewEmployees() {
   });
 }
 
-function viewDep() {
+viewDep = () => {
   connection.query('SELECT * from department;', function (err, data) {
     if (err) throw err;
     console.table(data);
@@ -70,7 +75,7 @@ function viewDep() {
   });
 }
 
-function viewRole() {
+viewRole = () => {
   connection.query('SELECT * from role;', function (err, data) {
     if (err) throw err;
     console.table(data);
@@ -78,12 +83,13 @@ function viewRole() {
   });
 }
 
-function addEmployee() {
-  // array for new employee info
-  let employeeInfo = [];
+addEmployee = () => {
+  employeeQueries();
+}
 
+employeeQueries = () => {
   // asks user for first and last name of new employee
-  connection.query('SELECT * FROM employee', async function (err, data) {
+  connection.query('SELECT * FROM employee;', async function (err, data) {
     try {
       const newName = await inquirer.prompt([{
         type: "input",
@@ -103,7 +109,7 @@ function addEmployee() {
     }
 
     // asks user for new employee's role
-    connection.query('SELECT * FROM role', async function (err, rdata) {
+    connection.query('SELECT * FROM role;', async function (err, rdata) {
       try {
         const newR = await inquirer.prompt([{
           type: "list",
@@ -124,7 +130,7 @@ function addEmployee() {
       }
 
       // asks user for manager
-      connection.query("SELECT * FROM employee WHERE manager_id IS NULL", async function (err, mresults) {
+      connection.query("SELECT * FROM employee WHERE manager_id IS NULL;", async function (err, mresults) {
         try {
           const newM = await inquirer.prompt([{
             type: "list",
@@ -155,35 +161,116 @@ function addEmployee() {
 }
 
 
-function addDepartment() {
+addDepartment = () => {
   inquirer.prompt({
     type: "input",
     name: "newDepartment",
     message: "What department would you like to add?"
   })
     .then(function (answers) {
-      connection.query("INSERT INTO department (name) VALUES (?)", answers.newDepartment, function (err, res) {
-        if (err) throw err;
-        console.log("Congrats. A new department has been successfully added.");
-        startPrompt(connection);
-      });
+      departmentQueries();
     });
 }
 
-function addRole() {
-  connection.query('SELECT * from employee', function (err, data) {
+departmentQueries = () => {
+  connection.query("INSERT INTO department (name) VALUES (?)", answers.newDepartment, function (err, res) {
     if (err) throw err;
-    console.table(data);
+    console.log("Congrats. A new department has been successfully added.");
     startPrompt(connection);
   });
 }
 
-function updateEmployeeRole() {
-  connection.query('SELECT * from employee', function (err, data) {
+addRole = () => {
+  connection.query('SELECT * FROM role', function (err, res) {
     if (err) throw err;
-    console.table(data);
+    inquirer.prompt([{
+      type: "input",
+      name: "newRole",
+      message: "What role/title would you like to add?"
+    },
+      {
+        type: "input",
+        name: "newSalary",
+        message: "What is the salary of the new role/title?"
+      },
+      {
+        type: "list",
+        name: "connectDep",
+        message: "What department is the new role/title in?",
+        choices: res.map(function (role) {
+          return {
+            name: role.title,
+            value: role.department_id
+          }
+        })
+      }])
+      .then(function (answers) {
+        roleQueries(answers);
+      });
+  })
+
+}
+
+roleQueries = (answers) => {
+  connection.query("INSERT INTO role (??) VALUES (?, ?, ?)", [["title", "salary", "department_id"], answers.newRole, answers.newSalary, answers.connectDep], function (err, res) {
+    if (err) throw err;
+    console.log("Congrats. A new role has been successfully added.");
     startPrompt(connection);
   });
+}
+
+
+updateEmployeeRole = () => {
+  connection.query('SELECT id, role_id, CONCAT (first_name, " ", last_name) AS name FROM employee', async function (err, res) {
+    try {
+      const employeeUpdate = await inquirer.prompt([{
+        type:"list",
+        name: "empID",
+        message: "Select the employee that you want to update the role for.",
+        choices: res.map(function(employeeRole) {
+          return {
+            name: employeeRole.name,
+            value: employeeRole.id
+          }
+        })
+      }]).then(function(answers) {
+        updateEmpInfo.push(answers.empID);
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  connection.query('SELECT * FROM role', async function (err, res) {
+    try {
+      const roleUpdate = await inquirer.prompt([{
+        type:"list",
+        name:"roleUpdate",
+        message: "Select the employee's role",
+        choices: res.map(function(newRole) {
+          return {
+            name: newRole.title,
+            value: newRole.id
+          }
+        })
+      }]) .then(function(answers) {
+        updateEmpInfo.push(answers.roleUpdate);
+        console.log(updateEmpInfo);
+        updateQueries(answers);
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  })
+    
+    startPrompt(connection);
+  });
+}
+
+updateQueries = (answers) => {
+  connection.query('UPDATE employee SET role_id = ? WHERE id = ?', [updateEmpInfo[1], updateEmpInfo[0]], function (err, res) {
+    if (err) throw err;
+    console.log("Congrats. The employee's role has successfully been updated.");
+    startPrompt(connection);
+  })
 }
 
 // prompts questions for user in terminal
