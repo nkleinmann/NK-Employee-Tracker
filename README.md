@@ -37,7 +37,7 @@ Screenshots:
 
 Link to GitHub repository: [Employee Tracker](https://github.com/nkleinmann/NK-Employee-Tracker)
 
-Link to YouTube video: [Employee Tracker video](#)
+Link to YouTube video: [Employee Tracker video](https://www.youtube.com/watch?v=bfoaEcrFUAg&feature=youtu.be)
 
 
 ## License:

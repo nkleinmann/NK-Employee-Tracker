@@ -53,7 +53,7 @@ startPrompt = (connection) => {
         break;
       case 'Exit':
         console.log("Thanks for using employee tracker. Have a nice day!");
-        return connection.end();
+        connection.end();
     }
 
   });
@@ -138,13 +138,13 @@ employeeQueries = () => {
             message: "Who is the manager of the new employee?",
             choices: mresults.map(function (m) {
               return {
-                name: `${m.first_name} ${m.last_name}`,
-                value: m.manager_id
+                name: m.first_name + ' ' + m.last_name,
+                value: m.id
               }
             })
           }]).then(function (answers) {
+            console.log(answers);
             employeeInfo.push(answers.newm);
-            console.log(employeeInfo);
             connection.query('INSERT INTO employee (??) VALUES (?, ?, ?, ?)', [["first_name", "last_name", "role_id", "manager_id"], employeeInfo[0], employeeInfo[1], employeeInfo[2], employeeInfo[3]], function (err, res) {
               if (err) throw err;
               console.log("Congrats. New employee has been added successfully.");
@@ -168,11 +168,11 @@ addDepartment = () => {
     message: "What department would you like to add?"
   })
     .then(function (answers) {
-      departmentQueries();
+      departmentQueries(answers);
     });
 }
 
-departmentQueries = () => {
+departmentQueries = (answers) => {
   connection.query("INSERT INTO department (name) VALUES (?)", answers.newDepartment, function (err, res) {
     if (err) throw err;
     console.log("Congrats. A new department has been successfully added.");
@@ -181,7 +181,7 @@ departmentQueries = () => {
 }
 
 addRole = () => {
-  connection.query('SELECT * FROM role', function (err, res) {
+  connection.query('SELECT * FROM department', function (err, res) {
     if (err) throw err;
     inquirer.prompt([{
       type: "input",
@@ -199,8 +199,8 @@ addRole = () => {
         message: "What department is the new role/title in?",
         choices: res.map(function (role) {
           return {
-            name: role.title,
-            value: role.department_id
+            name: role.name,
+            value: role.id
           }
         })
       }])
