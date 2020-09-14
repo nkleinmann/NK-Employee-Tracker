@@ -2,7 +2,7 @@
 
 This application allows a business owner to be able to view and manage the departments, roles, and employees in the company. This helps the user organize and plan the business. 
 
-Technologies used: node js, inquirer, mysql. 
+Technologies used: node js, inquirer, mysql 
             
 ## Table of Contents:
 1. [Installation](#installation)
@@ -31,6 +31,9 @@ GitHub:
 [nkleinmann](https://github.com/nkleinmann)
 
 Screenshots:
+
+![1](https://user-images.githubusercontent.com/65608809/93037552-b2ece280-f610-11ea-881a-e17e46e96455.jpg)
+![2](https://user-images.githubusercontent.com/65608809/93037555-b4b6a600-f610-11ea-8207-069ad726df84.jpg)
 
 Link to GitHub repository: [Employee Tracker](https://github.com/nkleinmann/NK-Employee-Tracker)
 

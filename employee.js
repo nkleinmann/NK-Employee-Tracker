@@ -273,5 +273,16 @@ updateQueries = (answers) => {
   })
 }
 
+startDesign = () => {
+  console.log("---------------------");
+  console.log("-                   -");                                
+  console.log("-                   -");                                
+  console.log("-  W e l c o m e !  -");                                
+  console.log("-                   -");                                
+  console.log("-                   -");                                
+  console.log("---------------------");
+}
+
+startDesign();
 // prompts questions for user in terminal
 startPrompt(connection);
